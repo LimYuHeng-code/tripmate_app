@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'pages/loginpage.dart';
+//import 'pages/ai_trip_planning.dart';
+import 'pages/ai_trip_recommendation.dart';
+//import 'pages/tripplanning.dart';
+//import 'pages/loginpage.dart';
 
 void main() {
   runApp(const MainApp());
@@ -25,7 +28,7 @@ class MainApp extends StatelessWidget {
         fontFamily: 'Roboto',
       ),
       themeMode: ThemeMode.light,
-      home: const LoginPage(),
+      home: TripRecommendationPage(),
     );
   }
 }
