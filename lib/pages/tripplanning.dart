@@ -46,7 +46,7 @@ class _TripPlanningPageState extends State<TripPlanningPage> {
             // Destination
             const Text("What is destination of choice?"),
             DropdownButtonFormField<String>(
-              value: destination,
+              initialValue: destination,
               decoration: const InputDecoration(border: OutlineInputBorder()),
               items: destinations.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
               onChanged: (val) => setState(() => destination = val),

@@ -27,14 +27,14 @@ class LoginPage extends StatelessWidget {
                     'Trip Mate',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.w700,
-                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.9),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.9),
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'where the travel begins',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                     ),
                   ),
                 ],
@@ -47,7 +47,7 @@ class LoginPage extends StatelessWidget {
                 height: MediaQuery.of(context).size.height * 0.3, // 30% of screen height
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.35),
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.35),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Padding(

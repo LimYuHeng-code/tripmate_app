@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class TripPlannerPage extends StatefulWidget {
+  const TripPlannerPage({super.key});
+
   @override
   _TripPlannerPageState createState() => _TripPlannerPageState();
 }

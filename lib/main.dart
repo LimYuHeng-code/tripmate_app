@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+//import 'package:tripmate_app/pages/inputpage.dart';
 //import 'pages/ai_trip_planning.dart';
 import 'pages/ai_trip_recommendation.dart';
 //import 'pages/tripplanning.dart';
@@ -18,14 +19,18 @@ class MainApp extends StatelessWidget {
       title: 'Trip Mate',
       theme: ThemeData(
         useMaterial3: true,
-        colorSchemeSeed: const Color.fromARGB(255, 66, 30, 229),
-        fontFamily: 'Roboto',
-      ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorSchemeSeed: const Color.fromARGB(255, 66, 30, 229),
-        brightness: Brightness.dark,
-        fontFamily: 'Roboto',
+        colorSchemeSeed: Colors.purple, // Changes primary colors across the app
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.purple,  // AppBar color
+          foregroundColor: Colors.white,   // Text and icon color on AppBar
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.purple,
+            foregroundColor: Colors.white, 
+          ),
+        ),
+        // Customize other theme properties as needed
       ),
       themeMode: ThemeMode.light,
       home: TripRecommendationPage(),
