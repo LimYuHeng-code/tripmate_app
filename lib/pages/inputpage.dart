@@ -13,7 +13,7 @@ class InputPage extends StatefulWidget {
 class _InputPageState extends State<InputPage> {
   final destinationController = TextEditingController();
   final daysController = TextEditingController();
-  String interests = "Culture";
+  List<String> interests = [];
   String budget = "Medium";
 
   Future<void> generateItinerary() async {
@@ -28,7 +28,7 @@ class _InputPageState extends State<InputPage> {
         'budget': budget,
       });
 
-      print('Sending JSON: $requestBody');  // <<< DEBUG print here
+      print('Sending JSON: $requestBody');
 
       final response = await http.post(
         Uri.parse('http://10.0.2.2:8000/generate_itinerary'),
@@ -37,15 +37,15 @@ class _InputPageState extends State<InputPage> {
       );
 
       print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');  // <<< DEBUG print response
+      print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final itineraryText = data['itinerary'] ?? 'No itinerary generated.';
+        final itineraryData = Map<String, dynamic>.from(data['itinerary']);
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ItineraryPage(itinerary: itineraryText),
+            builder: (context) => ItineraryPage(itineraryData: itineraryData),
           ),
         );
       } else {
@@ -65,41 +65,86 @@ class _InputPageState extends State<InputPage> {
 
   @override
   Widget build(BuildContext context) {
+    final interestOptions = ["Culture", "Adventure", "Food", "Nature"];
+
     return Scaffold(
       appBar: AppBar(title: const Text('Trip Planner')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: destinationController,
-              decoration: const InputDecoration(labelText: "Destination"),
-            ),
-            TextField(
-              controller: daysController,
-              decoration: const InputDecoration(labelText: "Days"),
-              keyboardType: TextInputType.number,
-            ),
-            DropdownButton<String>(
-              value: interests,
-              onChanged: (val) => setState(() => interests = val!),
-              items: ["Culture", "Adventure", "Food", "Nature"]
-                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                  .toList(),
-            ),
-            DropdownButton<String>(
-              value: budget,
-              onChanged: (val) => setState(() => budget = val!),
-              items: ["Low", "Medium", "High"]
-                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                  .toList(),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: generateItinerary,
-              child: const Text("Generate Itinerary"),
-            ),
-          ],
+        padding: const EdgeInsets.all(20.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: destinationController,
+                decoration: const InputDecoration(labelText: "Destination"),
+              ),
+              TextField(
+                controller: daysController,
+                decoration: const InputDecoration(labelText: "Days"),
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 16),
+              const Text("Select Your Interests:",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: interestOptions.map((e) {
+                  final isSelected = interests.contains(e);
+                  return FilterChip(
+                    label: Text(e),
+                    selected: isSelected,
+                    selectedColor: Colors.deepPurple,
+                    backgroundColor: Colors.grey.shade200,
+                    labelStyle: TextStyle(
+                      color: isSelected ? Colors.white : Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    onSelected: (selected) {
+                      setState(() {
+                        if (selected) {
+                          interests.add(e);
+                        } else {
+                          interests.remove(e);
+                        }
+                      });
+                    },
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 16),
+              const Text("Select Your Budget:",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              DropdownButton<String>(
+                value: budget,
+                onChanged: (val) => setState(() => budget = val!),
+                items: ["Low", "Medium", "High"]
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                    .toList(),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: generateItinerary,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepPurple,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    "Generate Itinerary",
+                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
