@@ -1,16 +1,15 @@
-import 'package:tripmate_app/widgets/age_selector.dart';
 import 'package:flutter/material.dart';
 import '../viewmodels/input_page_viewmodel.dart';
 import 'package:tripmate_app/pages/itinerary_page.dart';
 
-class InputPage extends StatefulWidget {
-  const InputPage({super.key});
+class InputPageView extends StatefulWidget {
+  const InputPageView({super.key});
 
   @override
-  State<InputPage> createState() => _InputPageState();
+  State<InputPageView> createState() => _InputPageViewState();
 }
 
-class _InputPageState extends State<InputPage> {
+class _InputPageViewState extends State<InputPageView> {
   late InputPageViewModel viewModel;
 
   @override
@@ -68,12 +67,6 @@ class _InputPageState extends State<InputPage> {
                 decoration: const InputDecoration(labelText: "Days"),
                 keyboardType: TextInputType.number,
               ),
-              AgeSelector(
-                initialAge: int.tryParse(viewModel.ageController.text) ?? 25,
-                onChanged: (newAge) {
-                  viewModel.ageController.text = newAge.toString();
-                },
-              ),
               const SizedBox(height: 16),
               const Text("Select Your Interests:",
                   style: TextStyle(fontWeight: FontWeight.bold)),
@@ -110,7 +103,7 @@ class _InputPageState extends State<InputPage> {
               const SizedBox(height: 8),
               TextField(
                 controller: viewModel.budgetController,
-                decoration: const InputDecoration(labelText: "Budget (e.g. 500.0)"),
+                decoration: const InputDecoration(labelText: "Budget (e.g. 1200.50)"),
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
               ),
               const SizedBox(height: 24),

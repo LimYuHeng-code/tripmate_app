@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-//import 'package:tripmate_app/pages/inputpage.dart';
+import 'package:tripmate_app/pages/inputpage.dart';
 //import 'package:tripmate_app/pages/inputpage.dart';
 //import 'pages/ai_trip_planning.dart';
 //import 'pages/ai_trip_recommendation.dart';
 //import 'pages/tripplanning.dart';
 //import 'pages/loginpage.dart';
 // import 'pages/discover_page.dart';
-import 'views/ai_trip_planner_view.dart';
+//import 'views/ai_trip_planner_view.dart';
 void main() {
   runApp(const MainApp());
 }
@@ -36,7 +36,7 @@ class MainApp extends StatelessWidget {
       ),
       themeMode: ThemeMode.light,
       // home: const DiscoverPage(),
-      home: const AiTripPlannerView()
+      home: const InputPage()
     );
   }
 }
