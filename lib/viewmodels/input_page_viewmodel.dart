@@ -40,7 +40,7 @@ class InputPageViewModel extends ChangeNotifier {
       'interests': interests,
       'budget': budget,
     };
-    print('Request payload: ' + jsonEncode(payload));
+    print('Request payload: ${jsonEncode(payload)}');
 
     final response = await http.post(
       Uri.parse('http://10.0.2.2:8000/generate-itinerary'),

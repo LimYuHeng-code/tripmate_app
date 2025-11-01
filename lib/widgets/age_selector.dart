@@ -45,7 +45,7 @@ class _AgeSelectorState extends State<AgeSelector> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
-                icon: const Icon(Icons.remove_circle),
+                icon: const Icon(Icons.remove_circle), //Minus Icon
                 color: Colors.deepPurpleAccent,
                 iconSize: 30,
                 onPressed: () {
@@ -61,7 +61,7 @@ class _AgeSelectorState extends State<AgeSelector> {
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.add_circle),
+                icon: const Icon(Icons.add_circle), // Add icon
                 color: Colors.deepPurpleAccent,
                 iconSize: 30,
                 onPressed: () => updateAge(age + 1),

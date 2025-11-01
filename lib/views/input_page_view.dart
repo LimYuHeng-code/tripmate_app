@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../viewmodels/input_page_viewmodel.dart';
-import 'package:tripmate_app/pages/itinerary_page.dart';
+import 'package:tripmate_app/views/itinerary_page_view.dart';
+import 'package:tripmate_app/widgets/age_selector.dart';
 
 class InputPageView extends StatefulWidget {
   const InputPageView({super.key});
@@ -36,7 +37,7 @@ class _InputPageViewState extends State<InputPageView> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ItineraryPage(itineraryData: viewModel.itineraryModel!.itinerary),
+          builder: (context) => ItineraryPageView(itineraryData: viewModel.itineraryModel!.itinerary),
         ),
       );
     } else {
@@ -48,7 +49,7 @@ class _InputPageViewState extends State<InputPageView> {
 
   @override
   Widget build(BuildContext context) {
-    final interestOptions = ["Culture", "Adventure", "Food", "Nature"];
+    final interestOptions = ["Culture", "Adventure", "Food", "Nature","Relaxation","Shopping","Must-see Attractions","History"];
 
     return Scaffold(
       appBar: AppBar(title: const Text('Trip Planner')),
@@ -66,6 +67,12 @@ class _InputPageViewState extends State<InputPageView> {
                 controller: viewModel.daysController,
                 decoration: const InputDecoration(labelText: "Days"),
                 keyboardType: TextInputType.number,
+              ),
+              AgeSelector(
+                initialAge: int.tryParse(viewModel.ageController.text) ?? 18,
+                onChanged: (newAge) {
+                  viewModel.ageController.text = newAge.toString();
+                },
               ),
               const SizedBox(height: 16),
               const Text("Select Your Interests:",

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:tripmate_app/pages/inputpage.dart';
+//import 'package:tripmate_app/pages/inputpage.dart';
+import 'package:tripmate_app/views/input_page_view.dart';
 //import 'package:tripmate_app/pages/inputpage.dart';
 //import 'pages/ai_trip_planning.dart';
 //import 'pages/ai_trip_recommendation.dart';
@@ -36,7 +37,7 @@ class MainApp extends StatelessWidget {
       ),
       themeMode: ThemeMode.light,
       // home: const DiscoverPage(),
-      home: const InputPage()
+      home: const InputPageView()
     );
   }
 }
