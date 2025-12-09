@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
-//import 'package:tripmate_app/pages/inputpage.dart';
+import 'package:tripmate_app/pages/firestore_test.dart';
+
 //import 'package:tripmate_app/views/input_page_view.dart';
-//import 'package:tripmate_app/pages/inputpage.dart';
 //import 'pages/ai_trip_planning.dart';
 //import 'pages/ai_trip_recommendation.dart';
 //import 'pages/tripplanning.dart';
 //import 'pages/loginpage.dart';
 // import 'pages/discover_page.dart';
 //import 'views/ai_trip_planner_view.dart';
-import 'pages/tour_package.dart';
-void main() {
+//import 'pages/tour_package.dart';
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+ 
   runApp(const MainApp());
 }
+
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
@@ -38,7 +41,7 @@ class MainApp extends StatelessWidget {
       ),
       themeMode: ThemeMode.light,
       // home: const DiscoverPage(),
-      home: const TourPackagesPage()
+      home: const TestFirestorePage()
     );
   }
 }

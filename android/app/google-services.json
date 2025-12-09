@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "663903782058",
+    "project_id": "itinerary-b5828",
+    "storage_bucket": "itinerary-b5828.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:663903782058:android:232a0521739e09f5bffcd3",
+        "android_client_info": {
+          "package_name": "com.example.itinerary"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAq2kYnZf5E-kJh0V7M8AlHSSnYQSCoY8o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
