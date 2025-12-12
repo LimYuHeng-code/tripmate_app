@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tripmate_app/pages/firestore_test.dart';
+import 'package:firebase_options/firebase_options.dart';
 
 //import 'package:tripmate_app/views/input_page_view.dart';
 //import 'pages/ai_trip_planning.dart';
