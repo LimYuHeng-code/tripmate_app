@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:tripmate_app/pages/firestore_test.dart';
-import 'package:firebase_options/firebase_options.dart';
-
-//import 'package:tripmate_app/views/input_page_view.dart';
+ //import 'package:tripmate_app/pages/firestore_test.dart';
+import 'package:tripmate_app/firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:tripmate_app/views/input_page_view.dart';
 //import 'pages/ai_trip_planning.dart';
 //import 'pages/ai_trip_recommendation.dart';
 //import 'pages/tripplanning.dart';
@@ -12,7 +12,10 @@ import 'package:firebase_options/firebase_options.dart';
 //import 'pages/tour_package.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
- 
+ await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+ );
+
   runApp(const MainApp());
 }
 
@@ -42,7 +45,7 @@ class MainApp extends StatelessWidget {
       ),
       themeMode: ThemeMode.light,
       // home: const DiscoverPage(),
-      home: const TestFirestorePage()
+      home: const InputPageView()
     );
   }
 }
