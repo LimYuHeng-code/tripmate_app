@@ -52,6 +52,7 @@ class InputPageViewModel extends ChangeNotifier {
       'interests': interests,
       'budget': budget,
     };
+    print("Payload sent to backend: $payload");
 
     try {
       // ===== Call Backend API =====
