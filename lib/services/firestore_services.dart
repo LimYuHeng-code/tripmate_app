@@ -24,21 +24,19 @@ class FirestoreService {
       'interests': interests,
       'budget': budget,
       'itinerary': itinerary,
-      'createdAt': FieldValue.serverTimestamp(),
     });
   }
 
-  // Read itineraries for a user
+  // Get all itineraries for a user
   Stream<QuerySnapshot> getUserItineraries(String userId) {
     return _db
         .collection('users')
         .doc(userId)
         .collection('itineraries')
-        .orderBy('createdAt', descending: true)
         .snapshots();
   }
 
-  // Update generated itinerary
+  // Update itinerary result
   Future<void> updateItinerary({
     required String userId,
     required String itineraryId,

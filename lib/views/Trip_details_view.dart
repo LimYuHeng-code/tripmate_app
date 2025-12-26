@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tripmate_app/views/generated_itinerary_page.dart';
+import 'package:tripmate_app/views/itinerary_page_view.dart';
 import '../viewmodels/input_page_viewmodel.dart';
 import '../widgets/age_selector.dart';
 
@@ -39,7 +39,7 @@ class _TripDetailsPageViewState extends State<TripDetailsPageView> {
         context,
         MaterialPageRoute(
           builder: (context) =>
-              GeneratedItineraryPageView(viewModel: viewModel),
+              ItineraryPageView(itineraryData: viewModel.itineraryModel!.itinerary),
         ),
       );
     } else {
@@ -69,12 +69,7 @@ class _TripDetailsPageViewState extends State<TripDetailsPageView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Destination
-            TextField(
-              controller: viewModel.destinationController,
-              decoration: const InputDecoration(labelText: "Destination"),
-            ),
-            const SizedBox(height: 16),
+         
 
             // Days
             TextField(
