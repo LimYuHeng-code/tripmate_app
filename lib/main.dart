@@ -5,15 +5,14 @@ import 'package:firebase_core/firebase_core.dart';
 //import 'pages/ai_trip_planning.dart';
 //import 'pages/ai_trip_recommendation.dart';
 //import 'pages/tripplanning.dart';
-//import 'pages/loginpage.dart';
 // import 'pages/discover_page.dart';
 //import 'views/ai_trip_planner_view.dart';
 //import 'pages/tour_package.dart';
 //import 'views/destination_view.dart';
 //import 'maps_test.dart';
 //import 'markers_polylines.dart';
-import 'views/map_view.dart';
-
+//import 'views/map_view.dart';
+import 'views/login_page_view.dart';
 
 
 Future<void> main() async {
@@ -49,7 +48,7 @@ class MainApp extends StatelessWidget {
       ),
       themeMode: ThemeMode.light,
       // home: const DiscoverPage(),
-      home: const MapView(),
+      home: const LoginPage(),
     );
   }
 }

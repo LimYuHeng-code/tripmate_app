@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../models/itinerary_stop.dart';
 import '../viewmodels/map_viewmodel.dart';
 
 class MapView extends StatefulWidget {
-  const MapView({super.key});
+  final List<ItineraryStop> stops;
+
+  const MapView({
+    super.key,
+    required this.stops,
+  });
 
   @override
   State<MapView> createState() => _MapViewState();
@@ -16,9 +22,10 @@ class _MapViewState extends State<MapView> {
   void initState() {
     super.initState();
 
-    _vm = MapViewModel();
+    // 🔹 Create ViewModel using dynamic stops
+    _vm = MapViewModel(stops: widget.stops);
 
-    // 🔔 Listen to ViewModel updates
+    // 🔹 Listen for ViewModel updates
     _vm.addListener(_onVmUpdated);
   }
 
@@ -37,47 +44,27 @@ class _MapViewState extends State<MapView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Route (Backend Driven)")),
-      body: Stack(
-        children: [
-          GoogleMap(
-            initialCameraPosition: const CameraPosition(
-              target: LatLng(1.2840, 103.8560),
-              zoom: 13,
-            ),
-            markers: _vm.markers,
-            polylines: _vm.polylines,
+      appBar: AppBar(
+        title: const Text("Itinerary Route"),
+      ),
+      body: GoogleMap(
+        initialCameraPosition: CameraPosition(
+          target: widget.stops.first.position,
+          zoom: 13,
+        ),
+        markers: _vm.markers,
+        polylines: _vm.polylines,
 
-            // 🔒 Stability settings
-            myLocationButtonEnabled: false,
-            zoomControlsEnabled: false,
-            compassEnabled: false,
-            rotateGesturesEnabled: false,
-            tiltGesturesEnabled: false,
-            buildingsEnabled: false,
-            trafficEnabled: false,
-            indoorViewEnabled: false,
-            mapToolbarEnabled: false,
-          ),
-
-          if (_vm.isLoading)
-            const Center(child: CircularProgressIndicator()),
-
-          if (_vm.error != null)
-            Positioned(
-              bottom: 20,
-              left: 20,
-              right: 20,
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                color: Colors.black.withOpacity(0.7),
-                child: Text(
-                  _vm.error!,
-                  style: const TextStyle(color: Colors.red),
-                ),
-              ),
-            ),
-        ],
+        // 🔒 Stability + performance settings
+        myLocationButtonEnabled: false,
+        zoomControlsEnabled: false,
+        compassEnabled: false,
+        rotateGesturesEnabled: false,
+        tiltGesturesEnabled: false,
+        buildingsEnabled: false,
+        trafficEnabled: false,
+        indoorViewEnabled: false,
+        mapToolbarEnabled: false,
       ),
     );
   }
