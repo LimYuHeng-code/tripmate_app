@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 import '../models/input_page_model.dart';
 import '../services/firestore_services.dart';
+import 'package:firebase_auth/firebase_auth.dart'; 
 
 class InputPageViewModel extends ChangeNotifier {
   // ===== Services =====
@@ -75,9 +75,18 @@ class InputPageViewModel extends ChangeNotifier {
           'itinerary': data['itinerary'] ?? {},
         });
 
-        // ===== Save to Firestore =====
+        // ===== Get signed-in user UID =====
+        final user = FirebaseAuth.instance.currentUser;
+        if (user == null) {
+          print("No user signed in! Cannot save itinerary.");
+          isLoading = false;
+          notifyListeners();
+          return;
+        }
+
+        // ===== Save to Firestore with correct UID =====
         await _firestoreService.saveItinerary(
-          userId: "test_user_001", // replace with FirebaseAuth UID later
+          userId: user.uid, // ✅ use current user's UID
           destination: itineraryModel!.destination,
           days: itineraryModel!.days,
           age: itineraryModel!.age,

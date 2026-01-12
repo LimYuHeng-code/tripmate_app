@@ -20,6 +20,12 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
   }
 
   @override
+  void dispose() {
+    viewModel.dispose(); // Dispose controllers safely
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: viewModel,
@@ -64,6 +70,7 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
             body: TabBarView(
               children: days.keys.map((day) {
                 final dayModel = days[day]!;
+
                 return SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -77,9 +84,9 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      _buildSection(day, 'Morning', dayModel.morning),
-                      _buildSection(day, 'Afternoon', dayModel.afternoon),
-                      _buildSection(day, 'Evening', dayModel.evening),
+                      _buildSection(day, 'Morning'),
+                      _buildSection(day, 'Afternoon'),
+                      _buildSection(day, 'Evening'),
                     ],
                   ),
                 );
@@ -91,7 +98,11 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
     );
   }
 
-  Widget _buildSection(String day, String period, List<String> items) {
+  // -------------------- SECTION BUILDER --------------------
+  Widget _buildSection(String day, String period) {
+    // Get the controllers for this day & period
+    final ctrls = viewModel.controllers[day]![period]!;
+
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       child: Padding(
@@ -99,16 +110,58 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(period, style: const TextStyle(fontWeight: FontWeight.bold)),
+            // Header with Add button
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(period,
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                if (viewModel.isEditing)
+                  IconButton(
+                    icon: const Icon(Icons.add, size: 20),
+                    tooltip: 'Add Activity',
+                    onPressed: () {
+                      viewModel.addActivity(day, period);
+                    },
+                  ),
+              ],
+            ),
             const SizedBox(height: 8),
-            for (int i = 0; i < items.length; i++)
-              viewModel.isEditing
-                  ? TextFormField(
-                      initialValue: items[i],
-                      onChanged: (v) =>
-                          viewModel.updateActivity(day, period, i, v),
-                    )
-                  : Text('• ${items[i]}'),
+
+            // Activities list
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: ctrls.length,
+              itemBuilder: (context, i) {
+                return Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: ctrls[i],
+                        readOnly: !viewModel.isEditing,
+                        decoration: InputDecoration(
+                          hintText:
+                              viewModel.isEditing ? 'Enter activity' : null,
+                          border: InputBorder.none,
+                        ),
+                        onChanged: (v) {
+                          viewModel.updateActivity(day, period, i, v);
+                        },
+                      ),
+                    ),
+                    if (viewModel.isEditing)
+                      IconButton(
+                        icon: const Icon(Icons.delete, size: 18),
+                        tooltip: 'Delete Activity',
+                        onPressed: () {
+                          viewModel.removeActivity(day, period, i);
+                        },
+                      ),
+                  ],
+                );
+              },
+            ),
           ],
         ),
       ),
