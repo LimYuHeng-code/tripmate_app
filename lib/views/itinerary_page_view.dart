@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import '../viewmodels/itinerary_viewmodel.dart';
+import 'share_trip_view.dart';
 
 class ItineraryPageView extends StatefulWidget {
   final Map<String, dynamic> itineraryData;
 
-  const ItineraryPageView({super.key, required this.itineraryData});
+  const ItineraryPageView({
+    super.key,
+    required this.itineraryData,
+  });
 
   @override
   State<ItineraryPageView> createState() => _ItineraryPageViewState();
@@ -21,7 +25,7 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
 
   @override
   void dispose() {
-    viewModel.dispose(); // Dispose controllers safely
+    viewModel.dispose();
     super.dispose();
   }
 
@@ -39,6 +43,22 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
               backgroundColor: Colors.deepPurple,
               title: const Text('My Itinerary'),
               actions: [
+                // 🔹 Share button (Roamy-style entry point)
+                IconButton(
+                  icon: const Icon(Icons.share),
+                  tooltip: 'Share Trip',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ShareTripPage(
+                          itineraryData: widget.itineraryData,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+
                 if (viewModel.isLoading)
                   const Padding(
                     padding: EdgeInsets.all(12),
@@ -47,11 +67,15 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
                       strokeWidth: 2,
                     ),
                   ),
+
                 IconButton(
-                  icon: Icon(viewModel.isEditing ? Icons.check : Icons.edit),
+                  icon: Icon(
+                    viewModel.isEditing ? Icons.check : Icons.edit,
+                  ),
                   tooltip: viewModel.isEditing ? 'Done' : 'Edit',
                   onPressed: viewModel.toggleEditing,
                 ),
+
                 IconButton(
                   icon: const Icon(Icons.refresh),
                   tooltip: 'Regenerate Itinerary',
@@ -100,7 +124,6 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
 
   // -------------------- SECTION BUILDER --------------------
   Widget _buildSection(String day, String period) {
-    // Get the controllers for this day & period
     final ctrls = viewModel.controllers[day]![period]!;
 
     return Card(
@@ -110,12 +133,14 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with Add button
+            // Header + Add button
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(period,
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(
+                  period,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
                 if (viewModel.isEditing)
                   IconButton(
                     icon: const Icon(Icons.add, size: 20),
