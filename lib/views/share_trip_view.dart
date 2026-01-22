@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
+
 import '../viewmodels/share_trip_viewmodel.dart';
 
 class ShareTripPage extends StatefulWidget {
@@ -38,7 +40,7 @@ class _ShareTripPageState extends State<ShareTripPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.deepPurple,
-        title: const Text('Share Trip Code'),
+        title: const Text('Share Trip'),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.pop(context),
@@ -84,7 +86,7 @@ class _ShareTripPageState extends State<ShareTripPage> {
 
             const SizedBox(height: 32),
 
-            /// Trip Code
+            /// Trip Code Display
             Container(
               padding: const EdgeInsets.symmetric(
                 vertical: 20,
@@ -115,6 +117,7 @@ class _ShareTripPageState extends State<ShareTripPage> {
 
             const Spacer(),
 
+            /// Action Buttons
             Row(
               children: [
                 Expanded(
@@ -126,19 +129,19 @@ class _ShareTripPageState extends State<ShareTripPage> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: viewModel.isSaving || viewModel.isSaved
+                    onPressed: viewModel.isSaving
                         ? null
                         : () async {
-                            await viewModel.saveSharedTrip(
-                              widget.itineraryData,
-                            );
-
-                            if (mounted && viewModel.isSaved) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Trip shared successfully!'),
-                                ),
+                            // Save to Firestore once
+                            if (!viewModel.isSaved) {
+                              await viewModel.saveSharedTrip(
+                                widget.itineraryData,
                               );
+                            }
+
+                            // Share to socials
+                            if (mounted && viewModel.isSaved) {
+                              _shareTrip();
                             }
                           },
                     child: viewModel.isSaving
@@ -150,9 +153,7 @@ class _ShareTripPageState extends State<ShareTripPage> {
                               color: Colors.white,
                             ),
                           )
-                        : Text(
-                            viewModel.isSaved ? 'Shared' : 'Share Trip',
-                          ),
+                        : const Text('Share Trip'),
                   ),
                 ),
               ],
@@ -163,6 +164,7 @@ class _ShareTripPageState extends State<ShareTripPage> {
     );
   }
 
+  /// Copy trip code
   void _copyCode() {
     Clipboard.setData(
       ClipboardData(text: viewModel.tripCode),
@@ -171,5 +173,18 @@ class _ShareTripPageState extends State<ShareTripPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Trip code copied')),
     );
+  }
+
+  /// Share to social apps
+  void _shareTrip() {
+    final message = '''
+Join my trip!
+
+Trip Code: ${viewModel.tripCode}
+
+Open the TripMate app and enter this code to join.
+''';
+
+    Share.share(message);
   }
 }

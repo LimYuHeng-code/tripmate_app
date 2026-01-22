@@ -9,6 +9,7 @@ class LoginViewModel extends ChangeNotifier {
   bool isLoading = false;
   String? errorMessage;
 
+  // ===== Email/Password login =====
   Future<void> signInWithEmail(String email, String password) async {
     try {
       isLoading = true;
@@ -31,5 +32,31 @@ class LoginViewModel extends ChangeNotifier {
     }
   }
 
+  // ===== Anonymous login =====
+  Future<void> signInAnonymously() async {
+    try {
+      isLoading = true;
+      errorMessage = null;
+      notifyListeners();
+
+      final credential = await _auth.signInAnonymously();
+      currentUser = LoginUser.fromFirebase(credential.user);
+    } on FirebaseAuthException catch (e) {
+      errorMessage = e.message;
+    } catch (_) {
+      errorMessage = 'Something went wrong';
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
   bool get isLoggedIn => currentUser != null;
+
+  // ===== Optional: Sign out =====
+  Future<void> signOut() async {
+    await _auth.signOut();
+    currentUser = null;
+    notifyListeners();
+  }
 }

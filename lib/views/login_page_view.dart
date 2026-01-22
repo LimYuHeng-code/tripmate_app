@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../viewmodels/login_viewmodel.dart';
-import 'destination_view.dart';
+import 'home_page_view.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -43,14 +43,24 @@ class _LoginPageState extends State<LoginPage> {
       _passwordController.text.trim(),
     );
 
+    _navigateIfLoggedIn();
+  }
+
+  Future<void> _signInAnonymously() async {
+    FocusScope.of(context).unfocus();
+
+    await _viewModel.signInAnonymously();
+
+    _navigateIfLoggedIn();
+  }
+
+  void _navigateIfLoggedIn() {
     if (!mounted) return;
 
     if (_viewModel.isLoggedIn) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (_) => const DestinationPageView(),
-        ),
+        MaterialPageRoute(builder: (_) => HomeView()),
       );
     }
   }
@@ -62,8 +72,7 @@ class _LoginPageState extends State<LoginPage> {
         child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           child: SingleChildScrollView(
-            keyboardDismissBehavior:
-                ScrollViewKeyboardDismissBehavior.onDrag,
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -134,22 +143,39 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 24),
 
-                // Button + loading (NO full page rebuilds)
+                // Sign in with Email
                 AnimatedBuilder(
                   animation: _viewModel,
                   builder: (_, __) {
                     return ElevatedButton(
-                      onPressed:
-                          _viewModel.isLoading ? null : _signIn,
+                      onPressed: _viewModel.isLoading ? null : _signIn,
                       child: _viewModel.isLoading
                           ? const SizedBox(
                               height: 20,
                               width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                              ),
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Text('Sign in with Email'),
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 12),
+
+                // Continue as Guest
+                AnimatedBuilder(
+                  animation: _viewModel,
+                  builder: (_, __) {
+                    return OutlinedButton(
+                      onPressed:
+                          _viewModel.isLoading ? null : _signInAnonymously,
+                      child: _viewModel.isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text('Continue as Guest'),
                     );
                   },
                 ),
@@ -181,4 +207,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-
