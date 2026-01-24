@@ -21,7 +21,7 @@ class ShareService {
     }
 
     await docRef.set({
-      'itineraryData': itineraryData,
+      'itinerary': itineraryData,
       'createdAt': FieldValue.serverTimestamp(),
     });
 

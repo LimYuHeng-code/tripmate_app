@@ -6,40 +6,36 @@ import '../models/itinerary_model.dart';
 class ItineraryViewModel extends ChangeNotifier {
   late ItineraryModel itinerary;
 
-  /// Editing state
   bool isEditing = false;
-
-  /// Loading state for regeneration
   bool isLoading = false;
 
-  /// Example user preferences (adjust as needed)
   final List<String> interests = ['food', 'culture'];
   final double budget = 3000;
 
-  /// Controllers for inline editing
-  /// Structure: day -> period -> list of controllers
   final Map<String, Map<String, List<TextEditingController>>> controllers = {};
 
-  // -------------------- CONSTRUCTOR --------------------
+  // -------------------- CONSTRUCTORS --------------------
+
+  // From JSON (raw Firestore)
   ItineraryViewModel(Map<String, dynamic> rawData) {
     itinerary = ItineraryModel.fromJson(rawData);
     _initControllers();
   }
 
-  /// Initialize TextEditingControllers from itinerary data
+  // From existing model (Share / Join)
+  ItineraryViewModel.fromModel(ItineraryModel model) {
+    itinerary = model;
+    _initControllers();
+  }
+
+  // -------------------- INIT CONTROLLERS --------------------
   void _initControllers() {
     controllers.clear();
     itinerary.days.forEach((day, dayModel) {
       controllers[day] = {
-        'Morning': dayModel.morning
-            .map((a) => TextEditingController(text: a))
-            .toList(),
-        'Afternoon': dayModel.afternoon
-            .map((a) => TextEditingController(text: a))
-            .toList(),
-        'Evening': dayModel.evening
-            .map((a) => TextEditingController(text: a))
-            .toList(),
+        'Morning': dayModel.morning.map((a) => TextEditingController(text: a)).toList(),
+        'Afternoon': dayModel.afternoon.map((a) => TextEditingController(text: a)).toList(),
+        'Evening': dayModel.evening.map((a) => TextEditingController(text: a)).toList(),
       };
     });
   }
@@ -51,8 +47,6 @@ class ItineraryViewModel extends ChangeNotifier {
   }
 
   // -------------------- ACTIVITY CRUD --------------------
-
-  /// Add a new empty activity for a given day & period
   void addActivity(String day, String period) {
     final dayModel = itinerary.days[day];
     if (dayModel == null) return;
@@ -73,7 +67,6 @@ class ItineraryViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Update an activity value
   void updateActivity(String day, String period, int index, String value) {
     final dayModel = itinerary.days[day];
     if (dayModel == null) return;
@@ -89,15 +82,12 @@ class ItineraryViewModel extends ChangeNotifier {
         dayModel.evening[index] = value;
         break;
     }
-    // No notifyListeners() here to prevent rebuild on every keystroke
   }
 
-  /// Remove an activity
   void removeActivity(String day, String period, int index) {
     final dayModel = itinerary.days[day];
     if (dayModel == null) return;
 
-    // Dispose the corresponding controller
     controllers[day]![period]![index].dispose();
     controllers[day]![period]!.removeAt(index);
 
@@ -117,7 +107,6 @@ class ItineraryViewModel extends ChangeNotifier {
   }
 
   // -------------------- REGENERATE ITINERARY --------------------
-
   Future<void> regenerateItinerary() async {
     try {
       isLoading = true;
@@ -138,9 +127,8 @@ class ItineraryViewModel extends ChangeNotifier {
       }
 
       final decoded = jsonDecode(response.body);
-
       itinerary = ItineraryModel.fromJson(decoded['itinerary']);
-      _initControllers(); // Reset controllers after regeneration
+      _initControllers();
     } catch (e) {
       debugPrint('Regeneration failed: $e');
     } finally {
@@ -162,5 +150,3 @@ class ItineraryViewModel extends ChangeNotifier {
     super.dispose();
   }
 }
-
-

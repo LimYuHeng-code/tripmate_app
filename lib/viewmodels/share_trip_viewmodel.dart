@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tripmate_app/models/itinerary_model.dart';
 import 'package:tripmate_app/services/share_services.dart';
 import '../utils/trip_code_generator.dart';
 
@@ -8,29 +9,33 @@ class ShareTripViewModel extends ChangeNotifier {
   late final String tripCode;
   bool isSaving = false;
   bool isSaved = false;
+  String? errorMessage;
 
   ShareTripViewModel() {
     tripCode = TripCodeGenerator.generate();
   }
 
-  Future<void> saveSharedTrip(Map<String, dynamic> itineraryData) async {
+  /// Save itinerary in canonical format
+  Future<void> saveSharedTrip(ItineraryModel itinerary) async {
     if (isSaving || isSaved) return;
 
     isSaving = true;
+    errorMessage = null;
     notifyListeners();
 
     try {
       await _shareService.createSharedItinerary(
         shareCode: tripCode,
-        itineraryData: itineraryData,
+        itineraryData: itinerary.toJson(), // 🔥 SINGLE SOURCE OF TRUTH
       );
 
       isSaved = true;
     } catch (e) {
       debugPrint('Error sharing trip: $e');
+      errorMessage = 'Failed to share trip';
+    } finally {
+      isSaving = false;
+      notifyListeners();
     }
-
-    isSaving = false;
-    notifyListeners();
   }
 }

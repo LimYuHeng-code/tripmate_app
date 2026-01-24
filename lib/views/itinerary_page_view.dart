@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../viewmodels/itinerary_viewmodel.dart';
 import 'share_trip_view.dart';
+import '../models/itinerary_model.dart';
 
 class ItineraryPageView extends StatefulWidget {
   final Map<String, dynamic> itineraryData;
@@ -43,7 +44,6 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
               backgroundColor: Colors.deepPurple,
               title: const Text('My Itinerary'),
               actions: [
-                // 🔹 Share button (Roamy-style entry point)
                 IconButton(
                   icon: const Icon(Icons.share),
                   tooltip: 'Share Trip',
@@ -52,13 +52,12 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
                       context,
                       MaterialPageRoute(
                         builder: (_) => ShareTripPage(
-                          itineraryData: widget.itineraryData,
+                          itinerary: viewModel.itinerary,
                         ),
                       ),
                     );
                   },
                 ),
-
                 if (viewModel.isLoading)
                   const Padding(
                     padding: EdgeInsets.all(12),
@@ -67,7 +66,6 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
                       strokeWidth: 2,
                     ),
                   ),
-
                 IconButton(
                   icon: Icon(
                     viewModel.isEditing ? Icons.check : Icons.edit,
@@ -75,7 +73,6 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
                   tooltip: viewModel.isEditing ? 'Done' : 'Edit',
                   onPressed: viewModel.toggleEditing,
                 ),
-
                 IconButton(
                   icon: const Icon(Icons.refresh),
                   tooltip: 'Regenerate Itinerary',
@@ -124,7 +121,7 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
 
   // -------------------- SECTION BUILDER --------------------
   Widget _buildSection(String day, String period) {
-    final ctrls = viewModel.controllers[day]![period]!;
+    final controllers = viewModel.controllers[day]![period]!;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -157,21 +154,21 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: ctrls.length,
-              itemBuilder: (context, i) {
+              itemCount: controllers.length,
+              itemBuilder: (context, index) {
                 return Row(
                   children: [
                     Expanded(
                       child: TextField(
-                        controller: ctrls[i],
+                        controller: controllers[index],
                         readOnly: !viewModel.isEditing,
                         decoration: InputDecoration(
                           hintText:
                               viewModel.isEditing ? 'Enter activity' : null,
                           border: InputBorder.none,
                         ),
-                        onChanged: (v) {
-                          viewModel.updateActivity(day, period, i, v);
+                        onChanged: (value) {
+                          viewModel.updateActivity(day, period, index, value);
                         },
                       ),
                     ),
@@ -180,7 +177,7 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
                         icon: const Icon(Icons.delete, size: 18),
                         tooltip: 'Delete Activity',
                         onPressed: () {
-                          viewModel.removeActivity(day, period, i);
+                          viewModel.removeActivity(day, period, index);
                         },
                       ),
                   ],
