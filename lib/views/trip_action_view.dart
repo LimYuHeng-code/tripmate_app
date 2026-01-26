@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import '../viewmodels/trip_action_viewmodel.dart';
+import 'destination_view.dart';
+import 'join_trip_view.dart';
 
 class TripAction extends StatelessWidget {
- TripAction({super.key});
+  const TripAction({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final TripActionViewModel vm = TripActionViewModel();
-
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
       decoration: const BoxDecoration(
@@ -19,7 +18,7 @@ class TripAction extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          /// Drag handle
+          // Drag handle
           Container(
             width: 40,
             height: 4,
@@ -29,21 +28,28 @@ class TripAction extends StatelessWidget {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-
-          /// New Trip → DestinationView
+          // New Trip → DestinationView
           _ActionTile(
             icon: Icons.edit_calendar,
             title: 'New Trip',
-            onTap: () => vm.openNewTrip(context),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => DestinationPageView()),
+              );
+            },
           ),
-
           const SizedBox(height: 12),
-
-          /// Find Trip → JoinTripView
+          // Find Trip → JoinTripView
           _ActionTile(
             icon: Icons.group,
             title: 'Find Trip',
-            onTap: () => vm.openFindTrip(context),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => JoinTripView()),
+              );
+            },
           ),
         ],
       ),

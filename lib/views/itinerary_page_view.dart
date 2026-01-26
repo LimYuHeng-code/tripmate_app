@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import '../viewmodels/itinerary_viewmodel.dart';
-import 'share_trip_view.dart';
-import '../models/itinerary_model.dart';
+import '../widgets/share_trip_button.dart';
+import '../widgets/save_trip_button.dart';
 
 class ItineraryPageView extends StatefulWidget {
   final Map<String, dynamic> itineraryData;
+  final bool isJoining;
 
   const ItineraryPageView({
     super.key,
     required this.itineraryData,
+    this.isJoining = false,
   });
 
   @override
@@ -44,20 +46,20 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
               backgroundColor: Colors.deepPurple,
               title: const Text('My Itinerary'),
               actions: [
-                IconButton(
-                  icon: const Icon(Icons.share),
-                  tooltip: 'Share Trip',
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ShareTripPage(
-                          itinerary: viewModel.itinerary,
+                // ✅ Save if joined, Share if owner
+                if (widget.isJoining)
+                  SaveTripButton(
+                    onSave: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Trip saved successfully!'),
                         ),
-                      ),
-                    );
-                  },
-                ),
+                      );
+                    },
+                  )
+                else
+                  ShareTripButton(itinerary: viewModel.itinerary),
+
                 if (viewModel.isLoading)
                   const Padding(
                     padding: EdgeInsets.all(12),
@@ -66,6 +68,7 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
                       strokeWidth: 2,
                     ),
                   ),
+
                 IconButton(
                   icon: Icon(
                     viewModel.isEditing ? Icons.check : Icons.edit,
@@ -73,6 +76,7 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
                   tooltip: viewModel.isEditing ? 'Done' : 'Edit',
                   onPressed: viewModel.toggleEditing,
                 ),
+
                 IconButton(
                   icon: const Icon(Icons.refresh),
                   tooltip: 'Regenerate Itinerary',
@@ -130,7 +134,6 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header + Add button
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -141,7 +144,6 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
                 if (viewModel.isEditing)
                   IconButton(
                     icon: const Icon(Icons.add, size: 20),
-                    tooltip: 'Add Activity',
                     onPressed: () {
                       viewModel.addActivity(day, period);
                     },
@@ -150,7 +152,6 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
             ),
             const SizedBox(height: 8),
 
-            // Activities list
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -162,20 +163,18 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
                       child: TextField(
                         controller: controllers[index],
                         readOnly: !viewModel.isEditing,
-                        decoration: InputDecoration(
-                          hintText:
-                              viewModel.isEditing ? 'Enter activity' : null,
+                        decoration: const InputDecoration(
                           border: InputBorder.none,
                         ),
                         onChanged: (value) {
-                          viewModel.updateActivity(day, period, index, value);
+                          viewModel.updateActivity(
+                              day, period, index, value);
                         },
                       ),
                     ),
                     if (viewModel.isEditing)
                       IconButton(
                         icon: const Icon(Icons.delete, size: 18),
-                        tooltip: 'Delete Activity',
                         onPressed: () {
                           viewModel.removeActivity(day, period, index);
                         },
@@ -190,3 +189,6 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
     );
   }
 }
+
+
+

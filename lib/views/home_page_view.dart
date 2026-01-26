@@ -1,29 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:tripmate_app/views/trip_action_view.dart';
 import '../viewmodels/home_viewmodel.dart';
+import 'package:tripmate_app/widgets/main_bottom_nav_bar.dart';
 
-class HomeView extends StatelessWidget {
+class HomeView extends StatefulWidget {
   HomeView({super.key});
 
+  @override
+  State<HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
   final HomeViewModel vm = HomeViewModel();
+  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: const _HomePlaceholder(),
-
+      body: _currentIndex == 0
+          ? Center(child: Text('My Trips'))
+          : Center(child: Text('Account')),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.black,
         child: const Icon(Icons.add),
-        onPressed: () => vm.openActionSheet(context),
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (_) => TripAction(),
+          );
+        },
       ),
-
-      floatingActionButtonLocation:
-          FloatingActionButtonLocation.centerDocked,
-
-      bottomNavigationBar: const BottomAppBar(
-        shape: CircularNotchedRectangle(),
-        notchMargin: 8,
-        child: SizedBox(height: 60),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: MainBottomNavBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
       ),
     );
   }

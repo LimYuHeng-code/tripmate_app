@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../viewmodels/join_trip_viewmodel.dart';
+import '../views/itinerary_page_view.dart';
 
 class JoinTripView extends StatefulWidget {
   const JoinTripView({super.key});
@@ -15,13 +16,34 @@ class _JoinTripViewState extends State<JoinTripView> {
   void initState() {
     super.initState();
     vm = JoinTripViewModel();
-    vm.addListener(() => setState(() {}));
+    vm.addListener(_onViewModelChanged);
   }
 
   @override
   void dispose() {
+    vm.removeListener(_onViewModelChanged);
     vm.dispose();
     super.dispose();
+  }
+
+  void _onViewModelChanged() {
+    if (!mounted) return;
+
+    // 🔑 one-shot navigation event
+    final itineraryData = vm.joinedItineraryData;
+    if (itineraryData == null) return;
+
+    // consume event BEFORE navigating
+    vm.clearJoinedItinerary();
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ItineraryPageView(
+          itineraryData: itineraryData,
+          isJoining: true,
+        ),
+      ),
+    );
   }
 
   @override
@@ -36,6 +58,7 @@ class _JoinTripViewState extends State<JoinTripView> {
           children: [
             TextField(
               onChanged: vm.updateTripCode,
+              textCapitalization: TextCapitalization.characters,
               decoration: InputDecoration(
                 labelText: 'Trip Code',
                 border: const OutlineInputBorder(),
@@ -43,21 +66,25 @@ class _JoinTripViewState extends State<JoinTripView> {
               ),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: vm.isLoading ? null : () => vm.joinTrip(context),
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size.fromHeight(50),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: vm.isLoading ? null : vm.joinTrip,
+                child: vm.isLoading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text(
+                        'Join Trip',
+                        style: TextStyle(fontSize: 16),
+                      ),
               ),
-              child: vm.isLoading
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                    )
-                  : const Text(
-                      'Join Trip',
-                      style: TextStyle(fontSize: 16),
-                    ),
             ),
           ],
         ),

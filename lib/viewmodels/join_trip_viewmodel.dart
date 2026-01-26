@@ -1,44 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/auth_services.dart';
-import '../views/itinerary_page_view.dart';
 
 class JoinTripViewModel extends ChangeNotifier {
-  String tripCode = '';
+  final AuthService _authService = AuthService();
+
+  String _tripCode = '';
   bool isLoading = false;
   String? errorMessage;
 
-  final AuthService _authService = AuthService();
+  /// One-shot navigation data
+  Map<String, dynamic>? joinedItineraryData;
 
-  // -------------------- UPDATE TRIP CODE --------------------
-  void updateTripCode(String code) {
-    tripCode = code.trim().toUpperCase();
-    errorMessage = null;
-    notifyListeners();
+  // -------------------- Trip Code --------------------
+  void updateTripCode(String value) {
+    _tripCode = value.trim().toUpperCase();
   }
 
-  // -------------------- CLEAN TIMESTAMPS --------------------
-  Map<String, dynamic> cleanTimestamps(Map<String, dynamic> data) {
-    final result = <String, dynamic>{};
-    data.forEach((key, value) {
-      if (value is Timestamp) {
-        result[key] = value.toDate();
-      } else if (value is Map<String, dynamic>) {
-        result[key] = cleanTimestamps(value);
-      } else if (value is List) {
-        result[key] = value
-            .map((e) => e is Timestamp ? e.toDate() : e)
-            .toList();
-      } else {
-        result[key] = value;
-      }
-    });
-    return result;
-  }
-
-  // -------------------- JOIN TRIP --------------------
-  Future<void> joinTrip(BuildContext context) async {
-    if (tripCode.isEmpty) {
+  // -------------------- Join Trip --------------------
+  Future<void> joinTrip() async {
+    if (_tripCode.isEmpty) {
       errorMessage = 'Please enter a trip code';
       notifyListeners();
       return;
@@ -49,45 +30,40 @@ class JoinTripViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Ensure user is authenticated (anonymous)
       await _authService.ensureAnonymousAuth();
 
-      // Fetch shared itinerary from Firestore
       final doc = await FirebaseFirestore.instance
           .collection('shared_itineraries')
-          .doc(tripCode)
+          .doc(_tripCode)
           .get();
 
-      if (!doc.exists || doc.data() == null) {
+      if (!doc.exists) {
         errorMessage = 'Trip not found';
-        notifyListeners();
         return;
       }
 
-      // Clean timestamps (only createdAt)
-      Map<String, dynamic> data =
-          cleanTimestamps(doc.data()! as Map<String, dynamic>);
+      final rawData = doc.data();
+      final itinerary = rawData?['itinerary'];
 
-      // The itinerary itself is stored under 'itinerary' field
-      final itineraryData = data['itinerary'] as Map<String, dynamic>;
+      if (itinerary == null || itinerary is! Map<String, dynamic>) {
+        errorMessage = 'Invalid trip data';
+        return;
+      }
 
-      if (!context.mounted) return;
-
-      // Navigate to ItineraryPageView using the Map
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => ItineraryPageView(itineraryData: itineraryData),
-        ),
-      );
+      // 🔑 create a safe copy
+      joinedItineraryData = Map<String, dynamic>.from(itinerary);
     } catch (e) {
       debugPrint('Join trip error: $e');
       errorMessage = 'Failed to join trip';
-      notifyListeners();
     } finally {
       isLoading = false;
       notifyListeners();
     }
   }
-}
 
+  // -------------------- Navigation Event Consume --------------------
+  void clearJoinedItinerary() {
+    joinedItineraryData = null;
+    // ❗ NO notifyListeners() here
+  }
+}
