@@ -1,62 +1,104 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../models/login_user_model.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginViewModel extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  LoginUser? currentUser;
   bool isLoading = false;
   String? errorMessage;
 
-  // ===== Email/Password login =====
-  Future<void> signInWithEmail(String email, String password) async {
-    try {
-      isLoading = true;
-      errorMessage = null;
-      notifyListeners();
+  bool get isLoggedIn => _auth.currentUser != null;
 
-      final credential = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
+  /// Initialize GoogleSignIn (call once)
+  Future<void> initGoogleSignIn({
+    required String androidClientId,
+  }) async {
+    try {
+      await GoogleSignIn.instance.initialize(
+        clientId: androidClientId,
+        serverClientId: androidClientId,
+      );
+    } catch (e) {
+      errorMessage = "Google SignIn init failed: $e";
+      notifyListeners();
+    }
+  }
+
+  // ---------------- EMAIL LOGIN ----------------
+  Future<void> signInWithEmail(String email, String password) async {
+    _startLoading();
+    try {
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
+    } on FirebaseAuthException catch (e) {
+      errorMessage = e.message;
+    } finally {
+      _stopLoading();
+    }
+  }
+
+  // ---------------- ANONYMOUS ----------------
+  Future<void> signInAnonymously() async {
+    _startLoading();
+    try {
+      await _auth.signInAnonymously();
+    } on FirebaseAuthException catch (e) {
+      errorMessage = e.message ?? 'Guest sign-in failed';
+    } finally {
+      _stopLoading();
+    }
+  }
+
+  // ---------------- GOOGLE SIGN-IN ----------------
+  Future<void> signInWithGoogle() async {
+    _startLoading();
+    try {
+      // Authenticate the user
+      final GoogleSignInAccount? googleUser =
+          await GoogleSignIn.instance.authenticate(
+        scopeHint: ['email'],
       );
 
-      currentUser = LoginUser.fromFirebase(credential.user);
+      if (googleUser == null) {
+        // User canceled
+        return;
+      }
+
+      // Firebase credential
+      final googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+      );
+
+      await _auth.signInWithCredential(credential);
     } on FirebaseAuthException catch (e) {
       errorMessage = e.message;
-    } catch (_) {
-      errorMessage = 'Something went wrong';
+    } catch (e) {
+      errorMessage = 'Google sign-in failed: $e';
     } finally {
-      isLoading = false;
-      notifyListeners();
+      _stopLoading();
     }
   }
 
-  // ===== Anonymous login =====
-  Future<void> signInAnonymously() async {
-    try {
-      isLoading = true;
-      errorMessage = null;
-      notifyListeners();
-
-      final credential = await _auth.signInAnonymously();
-      currentUser = LoginUser.fromFirebase(credential.user);
-    } on FirebaseAuthException catch (e) {
-      errorMessage = e.message;
-    } catch (_) {
-      errorMessage = 'Something went wrong';
-    } finally {
-      isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  bool get isLoggedIn => currentUser != null;
-
-  // ===== Optional: Sign out =====
   Future<void> signOut() async {
-    await _auth.signOut();
-    currentUser = null;
+    _startLoading();
+    try {
+      await _auth.signOut();
+      await GoogleSignIn.instance.signOut();
+    } finally {
+      _stopLoading();
+    }
+  }
+
+  void _startLoading() {
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+  }
+
+  void _stopLoading() {
+    isLoading = false;
     notifyListeners();
   }
 }
+

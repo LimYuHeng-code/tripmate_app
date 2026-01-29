@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
-import '../viewmodels/share_trip_viewmodel.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/itinerary_model.dart';
+import '../viewmodels/share_trip_viewmodel.dart';
 
 class ShareTripPage extends StatefulWidget {
   final ItineraryModel itinerary;
@@ -14,7 +15,7 @@ class ShareTripPage extends StatefulWidget {
 }
 
 class _ShareTripPageState extends State<ShareTripPage> {
-  late ShareTripViewModel viewModel;
+  late final ShareTripViewModel viewModel;
 
   @override
   void initState() {
@@ -23,6 +24,12 @@ class _ShareTripPageState extends State<ShareTripPage> {
     viewModel.addListener(() {
       if (mounted) setState(() {});
     });
+
+    // Generate trip code immediately if user is logged in
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      _generateTripCode(currentUser.uid);
+    }
   }
 
   @override
@@ -31,12 +38,32 @@ class _ShareTripPageState extends State<ShareTripPage> {
     super.dispose();
   }
 
+  Future<void> _generateTripCode(String ownerId) async {
+    if (viewModel.isSaving || viewModel.isSaved) return;
+
+    await viewModel.shareTrip(
+      itinerary: widget.itinerary,
+      ownerId: ownerId,
+    );
+
+    if (viewModel.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(viewModel.errorMessage!)),
+      );
+    }
+  }
+
   void _copyCode() {
-    Clipboard.setData(ClipboardData(text: viewModel.tripCode));
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Trip code copied')));
+    if (viewModel.tripCode == null) return;
+
+    Clipboard.setData(ClipboardData(text: viewModel.tripCode!));
+    ScaffoldMessenger.of(context)
+      .showSnackBar(const SnackBar(content: Text('Trip code copied')));
   }
 
   void _shareTrip() {
+    if (viewModel.tripCode == null) return;
+
     final message = '''
 Join my trip on TripMate!
 
@@ -53,7 +80,10 @@ Open the app and enter this code to view the itinerary.
       appBar: AppBar(
         backgroundColor: Colors.deepPurple,
         title: const Text('Share Trip'),
-        leading: IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -61,7 +91,9 @@ Open the app and enter this code to view the itinerary.
           children: [
             const SizedBox(height: 16),
             Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Row(
@@ -72,9 +104,16 @@ Open the app and enter this code to view the itinerary.
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Shared Trip', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          const Text(
+                            'Shared Trip',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
                           const SizedBox(height: 4),
-                          Text('${widget.itinerary.days.length} Days', style: const TextStyle(color: Colors.grey)),
+                          Text(
+                            '${widget.itinerary.days.length} Days',
+                            style: const TextStyle(color: Colors.grey),
+                          ),
                         ],
                       ),
                     ),
@@ -92,29 +131,44 @@ Open the app and enter this code to view the itinerary.
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(viewModel.tripCode, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, letterSpacing: 4)),
-                  IconButton(icon: const Icon(Icons.copy), onPressed: _copyCode),
+                  Text(
+                    viewModel.tripCode ?? 'Generating...',
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 4,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.copy),
+                    onPressed: viewModel.tripCode != null ? _copyCode : null,
+                  ),
                 ],
               ),
             ),
             const Spacer(),
             Row(
               children: [
-                Expanded(child: OutlinedButton(onPressed: _copyCode, child: const Text('Copy Code'))),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed:
+                        viewModel.tripCode != null ? _copyCode : null,
+                    child: const Text('Copy Code'),
+                  ),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: viewModel.isSaving
-                        ? null
-                        : () async {
-                            if (!viewModel.isSaved) await viewModel.saveSharedTrip(widget.itinerary);
-                            if (mounted && viewModel.isSaved) _shareTrip();
-                          },
+                    onPressed:
+                        viewModel.tripCode != null ? _shareTrip : null,
                     child: viewModel.isSaving
                         ? const SizedBox(
                             height: 20,
                             width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
                           )
                         : const Text('Share Trip'),
                   ),

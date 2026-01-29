@@ -1,30 +1,41 @@
 import 'package:flutter/material.dart';
 
 class SaveTripButton extends StatelessWidget {
-  final VoidCallback onSave;
-  const SaveTripButton({super.key, required this.onSave});
+  final VoidCallback onPressed;
+  final bool compact;
+  final bool isSaved;
+
+  const SaveTripButton({
+    super.key,
+    required this.onPressed,
+    this.compact = false,
+    this.isSaved = false,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onSave,
-      style: ElevatedButton.styleFrom(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-        ),
-        backgroundColor: Colors.deepPurple,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+    return ElevatedButton.icon(
+      onPressed: isSaved ? null : onPressed,
+      icon: Icon(
+        isSaved ? Icons.check : Icons.bookmark_add,
+        size: compact ? 16 : 20,
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: const [
-          Icon(Icons.save, color: Colors.white),
-          SizedBox(width: 8),
-          Text(
-            'Save Trip',
-            style: TextStyle(fontSize: 16, color: Colors.white),
-          ),
-        ],
+      label: Text(
+        isSaved
+            ? 'Saved'
+            : (compact ? 'Save' : 'Save Trip'),
+        style: TextStyle(fontSize: compact ? 13 : 14),
+      ),
+      style: ElevatedButton.styleFrom(
+        padding: compact
+            ? const EdgeInsets.symmetric(horizontal: 12, vertical: 6)
+            : const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        minimumSize: compact ? Size.zero : null,
+        tapTargetSize:
+            compact ? MaterialTapTargetSize.shrinkWrap : null,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
       ),
     );
   }

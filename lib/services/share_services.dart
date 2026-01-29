@@ -3,24 +3,24 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class ShareService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  /// Create a shared itinerary using a share code
-  /// Returns true if saved successfully
-  /// Returns false if the share code already exists
+  // Stream for real-time updates
+  Stream<DocumentSnapshot<Map<String, dynamic>>> streamSharedTrip(String tripCode) {
+    return _db.collection('shared_itineraries').doc(tripCode).snapshots();
+  }
+
+  // Create a shared itinerary
   Future<bool> createSharedItinerary({
-    required String shareCode,
+    required String tripCode,
     required Map<String, dynamic> itineraryData,
+    required String ownerId,
   }) async {
-    final docRef =
-        _db.collection('shared_itineraries').doc(shareCode);
+    final ref = _db.collection('shared_itineraries').doc(tripCode);
+    if ((await ref.get()).exists) return false;
 
-    final docSnapshot = await docRef.get();
-
-    // Prevent overwrite if code already exists
-    if (docSnapshot.exists) {
-      return false;
-    }
-
-    await docRef.set({
+    await ref.set({
+      'tripCode': tripCode,
+      'ownerId': ownerId,
+      'participants': [ownerId],
       'itinerary': itineraryData,
       'createdAt': FieldValue.serverTimestamp(),
     });
@@ -28,18 +28,22 @@ class ShareService {
     return true;
   }
 
-  /// Get a shared itinerary by share code
-  /// Returns null if code does not exist
-  Future<Map<String, dynamic>?> getSharedItinerary(
-      String shareCode) async {
-    final doc = await _db
-        .collection('shared_itineraries')
-        .doc(shareCode)
-        .get();
+  // Join an existing trip
+  Future<void> joinTrip({required String tripCode, required String userId}) async {
+    await _db.collection('shared_itineraries').doc(tripCode).update({
+      'participants': FieldValue.arrayUnion([userId]),
+    });
+  }
 
-    if (!doc.exists) return null;
+  // Get shared itinerary once (for joining)
+  Future<DocumentSnapshot<Map<String, dynamic>>?> getSharedItineraryOnce(String tripCode) async {
+    final snapshot = await _db.collection('shared_itineraries').doc(tripCode).get();
+    if (snapshot.exists) return snapshot;
+    return null;
+  }
 
-    return doc.data();
+  // Update itinerary (if needed)
+  Future<void> updateItinerary({required String tripCode, required Map<String, dynamic> itineraryData}) async {
+    await _db.collection('shared_itineraries').doc(tripCode).update({'itinerary': itineraryData});
   }
 }
-

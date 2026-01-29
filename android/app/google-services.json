@@ -12,7 +12,20 @@
           "package_name": "com.example.itinerary"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "663903782058-7r6tfbiqv382o2986l5sqvc17rs9nt7v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.itinerary",
+            "certificate_hash": "ce136714a32f52a433aea7390429e54660072c1b"
+          }
+        },
+        {
+          "client_id": "663903782058-8gdk4rdi3uelfqcbcioupntb6cbbotj9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAq2kYnZf5E-kJh0V7M8AlHSSnYQSCoY8o"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "663903782058-8gdk4rdi3uelfqcbcioupntb6cbbotj9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "663903782058-ntfvi583orurvd58j38fthlq4i0rs23n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.tripmateApp"
+              }
+            }
+          ]
         }
       }
     },
@@ -31,7 +56,20 @@
           "package_name": "com.example.tripmate_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "663903782058-str38a6srbhc9i03nj6hir8d8fqbu95g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tripmate_app",
+            "certificate_hash": "ce136714a32f52a433aea7390429e54660072c1b"
+          }
+        },
+        {
+          "client_id": "663903782058-8gdk4rdi3uelfqcbcioupntb6cbbotj9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAq2kYnZf5E-kJh0V7M8AlHSSnYQSCoY8o"
@@ -39,7 +77,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "663903782058-8gdk4rdi3uelfqcbcioupntb6cbbotj9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "663903782058-ntfvi583orurvd58j38fthlq4i0rs23n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.tripmateApp"
+              }
+            }
+          ]
         }
       }
     }

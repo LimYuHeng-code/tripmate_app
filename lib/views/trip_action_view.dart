@@ -45,10 +45,8 @@ class TripAction extends StatelessWidget {
             icon: Icons.group,
             title: 'Find Trip',
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => JoinTripView()),
-              );
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const JoinTripPage()));
             },
           ),
         ],

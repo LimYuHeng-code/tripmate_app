@@ -24,7 +24,9 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    // Preload travel image
     precacheImage(const AssetImage('assets/travel.png'), context);
+    precacheImage(const AssetImage('assets/google-logo.png'), context);
   }
 
   @override
@@ -35,38 +37,90 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  Future<void> _signIn() async {
+  Future<void> _signInEmail() async {
     FocusScope.of(context).unfocus();
-
     await _viewModel.signInWithEmail(
       _emailController.text.trim(),
       _passwordController.text.trim(),
     );
-
     _navigateIfLoggedIn();
   }
 
   Future<void> _signInAnonymously() async {
     FocusScope.of(context).unfocus();
-
     await _viewModel.signInAnonymously();
+    _navigateIfLoggedIn();
+  }
 
+  Future<void> _signInGoogle() async {
+    FocusScope.of(context).unfocus();
+    await _viewModel.signInWithGoogle();
     _navigateIfLoggedIn();
   }
 
   void _navigateIfLoggedIn() {
     if (!mounted) return;
-
     if (_viewModel.isLoggedIn) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => HomeView()),
+        MaterialPageRoute(builder: (_) => const HomeView()),
       );
     }
   }
 
+  /// Responsive Google button with icon
+  Widget _buildGoogleButton() {
+    return AnimatedBuilder(
+      animation: _viewModel,
+      builder: (_, __) {
+        return SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.black,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: _viewModel.isLoading ? null : _signInGoogle,
+            child: _viewModel.isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Google logo
+                        Image.asset(
+                          'assets/google-logo.png',
+                          height: 18,
+                          width: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Sign in with Google',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
+                  ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Responsive travel image height
+    final double imageHeight = MediaQuery.of(context).size.height * 0.25;
+
     return Scaffold(
       body: SafeArea(
         child: GestureDetector(
@@ -98,7 +152,7 @@ class _LoginPageState extends State<LoginPage> {
 
                 // Travel image
                 Container(
-                  height: 220,
+                  height: imageHeight,
                   decoration: BoxDecoration(
                     color: Theme.of(context)
                         .colorScheme
@@ -126,7 +180,6 @@ class _LoginPageState extends State<LoginPage> {
                     border: OutlineInputBorder(),
                   ),
                 ),
-
                 const SizedBox(height: 16),
 
                 // Password field
@@ -140,7 +193,6 @@ class _LoginPageState extends State<LoginPage> {
                     border: OutlineInputBorder(),
                   ),
                 ),
-
                 const SizedBox(height: 24),
 
                 // Sign in with Email
@@ -148,12 +200,13 @@ class _LoginPageState extends State<LoginPage> {
                   animation: _viewModel,
                   builder: (_, __) {
                     return ElevatedButton(
-                      onPressed: _viewModel.isLoading ? null : _signIn,
+                      onPressed: _viewModel.isLoading ? null : _signInEmail,
                       child: _viewModel.isLoading
                           ? const SizedBox(
                               height: 20,
                               width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                              child:
+                                  CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Text('Sign in with Email'),
                     );
@@ -162,18 +215,25 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 12),
 
+                // Google Sign-In button
+                _buildGoogleButton(),
+
+                const SizedBox(height: 12),
+
                 // Continue as Guest
                 AnimatedBuilder(
                   animation: _viewModel,
                   builder: (_, __) {
-                    return OutlinedButton(
-                      onPressed:
-                          _viewModel.isLoading ? null : _signInAnonymously,
+                    return TextButton(
+                      onPressed: _viewModel.isLoading
+                          ? null
+                          : _signInAnonymously,
                       child: _viewModel.isLoading
                           ? const SizedBox(
                               height: 20,
                               width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                              child:
+                                  CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Text('Continue as Guest'),
                     );
