@@ -15,22 +15,33 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  @override
+ @override
   void initState() {
     super.initState();
     _viewModel = LoginViewModel();
+
+    // Listen for login state changes to navigate automatically
+    _viewModel.addListener(_navigateIfLoggedIn);
+
+    // Initialize Google Sign-In and try to sign in silently
+    _viewModel.initGoogleSignIn(
+      serverClientId: "663903782058-8gdk4rdi3uelfqcbcioupntb6cbbotj9.apps.googleusercontent.com",
+    );
+    _viewModel.trySilentSignIn(); // Attempt to sign in silently on page load
   }
+
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Preload travel image
     precacheImage(const AssetImage('assets/travel.png'), context);
-    precacheImage(const AssetImage('assets/google-logo.png'), context);
+    precacheImage(const AssetImage('assets/google-icon.png'), context);
   }
 
   @override
   void dispose() {
+    _viewModel.removeListener(_navigateIfLoggedIn);
     _viewModel.dispose();
     _emailController.dispose();
     _passwordController.dispose();
@@ -43,19 +54,19 @@ class _LoginPageState extends State<LoginPage> {
       _emailController.text.trim(),
       _passwordController.text.trim(),
     );
-    _navigateIfLoggedIn();
+    // The listener will handle navigation
   }
 
   Future<void> _signInAnonymously() async {
     FocusScope.of(context).unfocus();
     await _viewModel.signInAnonymously();
-    _navigateIfLoggedIn();
+    // The listener will handle navigation
   }
 
   Future<void> _signInGoogle() async {
     FocusScope.of(context).unfocus();
     await _viewModel.signInWithGoogle();
-    _navigateIfLoggedIn();
+    // The listener will handle navigation
   }
 
   void _navigateIfLoggedIn() {
@@ -98,7 +109,7 @@ class _LoginPageState extends State<LoginPage> {
                       children: [
                         // Google logo
                         Image.asset(
-                          'assets/google-logo.png',
+                          'assets/google-icon.png',
                           height: 18,
                           width: 18,
                         ),

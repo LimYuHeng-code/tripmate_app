@@ -29,17 +29,30 @@ class ItineraryDay {
 }
 
 class ItineraryModel {
+  final String title;
   final Map<String, ItineraryDay> days;
 
-  ItineraryModel({required this.days});
+  ItineraryModel({required this.title, required this.days});
 
   factory ItineraryModel.fromJson(Map<String, dynamic> json) {
+    final title = json['title'] as String? ?? 'Untitled Trip';
+    final daysData = json['days'] as Map<String, dynamic>? ?? {};
+    
     final days = <String, ItineraryDay>{};
-    json.forEach((key, value) {
-      days[key] = ItineraryDay.fromJson(value);
+    daysData.forEach((key, value) {
+      if (value is Map<String, dynamic>) {
+        days[key] = ItineraryDay.fromJson(value);
+      }
     });
-    return ItineraryModel(days: days);
+
+    return ItineraryModel(
+      title: title,
+      days: days,
+    );
   }
 
-  Map<String, dynamic> toJson() => days.map((k, v) => MapEntry(k, v.toJson()));
+  Map<String, dynamic> toJson() => {
+    'title': title,
+    'days': days.map((k, v) => MapEntry(k, v.toJson())),
+  };
 }

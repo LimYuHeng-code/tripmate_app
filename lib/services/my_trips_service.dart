@@ -61,4 +61,25 @@ class MyTripsService {
 
     print('Deleted trip: $docId for user: $userId');
   }
+
+  /// Check if a trip with a given title is already saved by the user
+  Future<bool> isTripSaved({
+    required String userId,
+    required String itineraryTitle,
+  }) async {
+    if (userId.isEmpty) {
+      print('ERROR: userId is empty, cannot check if trip is saved');
+      return false;
+    }
+
+    final querySnapshot = await _db
+        .collection('users')
+        .doc(userId)
+        .collection('my_trips')
+        .where('title', isEqualTo: itineraryTitle)
+        .limit(1) // We only need to know if at least one exists
+        .get();
+
+    return querySnapshot.docs.isNotEmpty;
+  }
 }

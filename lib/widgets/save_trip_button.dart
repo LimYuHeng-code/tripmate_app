@@ -17,7 +17,7 @@ class SaveTripButton extends StatelessWidget {
     return ElevatedButton.icon(
       onPressed: isSaved ? null : onPressed,
       icon: Icon(
-        isSaved ? Icons.check : Icons.bookmark_add,
+        isSaved ? Icons.check : Icons.save,
         size: compact ? 16 : 20,
       ),
       label: Text(

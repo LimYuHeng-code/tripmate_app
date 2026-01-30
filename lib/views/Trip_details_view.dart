@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tripmate_app/views/itinerary_page_view.dart';
-import '../viewmodels/input_page_viewmodel.dart';
 import '../widgets/age_selector.dart';
+import '../viewmodels/input_page_viewmodel.dart';
 
 class TripDetailsPageView extends StatefulWidget {
   final InputPageViewModel viewModel;
