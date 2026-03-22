@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../models/input_page_model.dart';
 import '../services/firestore_services.dart';
-import 'package:firebase_auth/firebase_auth.dart'; 
+import 'package:firebase_auth/firebase_auth.dart';
 
 class InputPageViewModel extends ChangeNotifier {
   // ===== Services =====
@@ -11,9 +11,12 @@ class InputPageViewModel extends ChangeNotifier {
 
   // ===== Controllers =====
   final destinationController = TextEditingController();
-  final daysController = TextEditingController();
+  final daysController = TextEditingController(); // optional (can remove later)
   final ageController = TextEditingController();
   final budgetController = TextEditingController();
+
+  // ===== NEW: Days state from picker =====
+  int? numberOfDays;
 
   // ===== State =====
   final List<String> interests = [];
@@ -21,13 +24,23 @@ class InputPageViewModel extends ChangeNotifier {
   InputPageModel? itineraryModel;
   bool isLoading = false;
 
+  // ===== Setter for Days Picker =====
+  void setFlexibleDays(int days) {
+    numberOfDays = days;
+
+    // Optional: keep controller in sync (safe fallback)
+    daysController.text = days.toString();
+
+    notifyListeners();
+  }
+
   // ===== Generate + Save Itinerary =====
   Future<void> generateItinerary() async {
     isLoading = true;
     itineraryModel = null;
     notifyListeners();
 
-    // ===== Input Validation =====
+    // ===== Validation =====
     if (budgetController.text.isEmpty) {
       isLoading = false;
       notifyListeners();
@@ -41,8 +54,14 @@ class InputPageViewModel extends ChangeNotifier {
       return;
     }
 
+    if (numberOfDays == null || numberOfDays! <= 0) {
+      isLoading = false;
+      notifyListeners();
+      return;
+    }
+
     final int age = int.tryParse(ageController.text) ?? 0;
-    final int days = int.tryParse(daysController.text) ?? 0;
+    final int days = numberOfDays!; // ✅ use picker value
     final String destination = destinationController.text.trim();
 
     final payload = {
@@ -52,6 +71,7 @@ class InputPageViewModel extends ChangeNotifier {
       'interests': interests,
       'budget': budget,
     };
+
     print("Payload sent to backend: $payload");
 
     try {
@@ -84,9 +104,9 @@ class InputPageViewModel extends ChangeNotifier {
           return;
         }
 
-        // ===== Save to Firestore with correct UID =====
+        // ===== Save to Firestore =====
         await _firestoreService.saveItinerary(
-          userId: user.uid, // ✅ use current user's UID
+          userId: user.uid,
           destination: itineraryModel!.destination,
           days: itineraryModel!.days,
           age: itineraryModel!.age,
@@ -107,7 +127,7 @@ class InputPageViewModel extends ChangeNotifier {
   @override
   void dispose() {
     destinationController.dispose();
-    daysController.dispose();
+    daysController.dispose(); // optional (can remove later)
     ageController.dispose();
     budgetController.dispose();
     super.dispose();

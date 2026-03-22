@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../viewmodels/jointrip_viewmodel.dart';
 import '../views/itinerary_page_view.dart';
+import 'package:tripmate_app/models/itinerary_mode.dart';
 
 class JoinTripPage extends StatefulWidget {
   const JoinTripPage({super.key});
@@ -45,8 +46,9 @@ class _JoinTripPageState extends State<JoinTripPage> {
         context,
         MaterialPageRoute(
           builder: (_) => ItineraryPageView(
-            itineraryData: viewModel.itinerary!.toJson(),
-          ),
+  itineraryData: viewModel.itinerary!.toJson(),
+  mode: ItineraryMode.join,
+),
         ),
       );
     }

@@ -11,41 +11,22 @@ class LoginViewModel extends ChangeNotifier {
 
   bool get isLoggedIn => _auth.currentUser != null;
 
-  /// Initialize GoogleSignIn.
-  void initGoogleSignIn({
-    // This is the Web client ID, needed for idToken on Android.
-    required String serverClientId,
-  }) {
-    _googleSignIn = GoogleSignIn(
-      serverClientId: serverClientId,
-    );
-  }
-
-  /// Tries to sign in silently in the background on app start.
-  Future<void> trySilentSignIn() async {
-    if (_googleSignIn == null) {
-      return;
-    }
+  /// ----------------- SIGN UP -----------------
+  Future<bool> signUp(String email, String password) async {
+    _startLoading();
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn!.signInSilently();
-
-      if (googleUser != null) {
-        final googleAuth = await googleUser.authentication;
-        final credential = GoogleAuthProvider.credential(
-          accessToken: googleAuth.accessToken,
-          idToken: googleAuth.idToken,
-        );
-        await _auth.signInWithCredential(credential);
-        notifyListeners(); // Notify listeners about login state change
-      }
-    } catch (e) {
-      // Fail silently, the user will just see the login page.
-      print("Silent sign-in failed: $e");
+      await _auth.createUserWithEmailAndPassword(
+          email: email, password: password);
+      return true;
+    } on FirebaseAuthException catch (e) {
+      errorMessage = e.message;
+      return false;
+    } finally {
+      _stopLoading();
     }
   }
 
-
-  // ---------------- EMAIL LOGIN ----------------
+  /// ----------------- EMAIL LOGIN -----------------
   Future<void> signInWithEmail(String email, String password) async {
     _startLoading();
     try {
@@ -57,39 +38,54 @@ class LoginViewModel extends ChangeNotifier {
     }
   }
 
-  // ---------------- ANONYMOUS ----------------
-  Future<void> signInAnonymously() async {
+  /// ----------------- RESET PASSWORD -----------------
+  Future<void> resetPassword(String email) async {
     _startLoading();
     try {
-      await _auth.signInAnonymously();
+      await _auth.sendPasswordResetEmail(email: email);
     } on FirebaseAuthException catch (e) {
-      errorMessage = e.message ?? 'Guest sign-in failed';
+      errorMessage = e.message;
     } finally {
       _stopLoading();
     }
   }
 
-  // ---------------- GOOGLE SIGN-IN ----------------
+  /// ----------------- GOOGLE LOGIN -----------------
+  void initGoogleSignIn({required String serverClientId}) {
+    _googleSignIn = GoogleSignIn(serverClientId: serverClientId);
+  }
+
+  Future<void> trySilentSignIn() async {
+    if (_googleSignIn == null) return;
+    try {
+      final googleUser = await _googleSignIn!.signInSilently();
+      if (googleUser != null) {
+        final googleAuth = await googleUser.authentication;
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+        await _auth.signInWithCredential(credential);
+        notifyListeners();
+      }
+    } catch (e) {
+      print("Silent Google sign-in failed: $e");
+    }
+  }
+
   Future<void> signInWithGoogle() async {
     _startLoading();
     try {
-      if (_googleSignIn == null) {
-        throw Exception('GoogleSignIn is not initialized. Call initGoogleSignIn first.');
-      }
+      if (_googleSignIn == null) throw Exception('Call initGoogleSignIn first');
 
-      // Try to sign in silently
       GoogleSignInAccount? googleUser = await _googleSignIn!.signInSilently();
-
-      // If silent sign-in fails, fall back to interactive sign-in
       googleUser ??= await _googleSignIn!.signIn();
 
       if (googleUser == null) {
-        // User canceled the sign-in
         _stopLoading();
         return;
       }
 
-      // Firebase credential
       final googleAuth = await googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
@@ -102,13 +98,11 @@ class LoginViewModel extends ChangeNotifier {
     } catch (e) {
       errorMessage = 'Google sign-in failed: $e';
     } finally {
-      // Check isLoading, as _stopLoading() might have been called if user canceled.
-      if (isLoading) {
-        _stopLoading();
-      }
+      if (isLoading) _stopLoading();
     }
   }
 
+  /// ----------------- SIGN OUT -----------------
   Future<void> signOut() async {
     _startLoading();
     try {
@@ -119,6 +113,7 @@ class LoginViewModel extends ChangeNotifier {
     }
   }
 
+  /// ----------------- LOADING -----------------
   void _startLoading() {
     isLoading = true;
     errorMessage = null;

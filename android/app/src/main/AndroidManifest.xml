@@ -1,12 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-  <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <application
         android:label="tripmate_app"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
          <meta-data
                 android:name="com.google.android.geo.API_KEY"
-                android:value="AIzaSyAX9Un6X-taNOkL00xPXqXq6gW_f-h0UVA"/>
+                android:value="AIzaSyAP59wr1KeUJ4OJ0gmZZzS9ILGQbnZ4Ub4"/>
                 <meta-data
     android:name="com.google.android.maps.flutter.AndroidViewSurface"
     android:value="true" />

@@ -35,7 +35,7 @@ class TripAction extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => DestinationPageView()),
+                MaterialPageRoute(builder: (_) => const DestinationViewPage()),
               );
             },
           ),

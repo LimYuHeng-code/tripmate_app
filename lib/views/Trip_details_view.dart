@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tripmate_app/views/itinerary_page_view.dart';
 import '../widgets/age_selector.dart';
 import '../viewmodels/input_page_viewmodel.dart';
+import 'package:tripmate_app/models/itinerary_mode.dart';
 
 class TripDetailsPageView extends StatefulWidget {
   final InputPageViewModel viewModel;
@@ -39,8 +40,11 @@ class _TripDetailsPageViewState extends State<TripDetailsPageView> {
         context,
         MaterialPageRoute(
           builder: (context) =>
-              ItineraryPageView(itineraryData: viewModel.itineraryModel!.itinerary),
+              ItineraryPageView(
+  itineraryData: viewModel.itineraryModel!.itinerary,
+  mode: ItineraryMode.create,
         ),
+      )
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -69,15 +73,6 @@ class _TripDetailsPageViewState extends State<TripDetailsPageView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-         
-
-            // Days
-            TextField(
-              controller: viewModel.daysController,
-              decoration: const InputDecoration(labelText: "Days"),
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 16),
 
             // Age Selector
             AgeSelector(

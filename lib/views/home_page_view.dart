@@ -24,30 +24,41 @@ class _HomeViewState extends State<HomeView> {
   void initState() {
     super.initState();
 
-    // Initialize Google Sign-In to be able to sign out
     _loginViewModel.initGoogleSignIn(
-      serverClientId: "663903782058-8gdk4rdi3uelfqcbcioupntb6cbbotj9.apps.googleusercontent.com",
+      serverClientId:
+          "663903782058-8gdk4rdi3uelfqcbcioupntb6cbbotj9.apps.googleusercontent.com",
     );
 
     _tabs = [
       MyTripsTab(),
-      // Account Tab with Sign Out Button
+
+      /// Account Tab
       Center(
-        child: ElevatedButton(
+        child: ElevatedButton.icon(
+          icon: const Icon(Icons.logout),
+          label: const Text('Sign Out'),
           onPressed: () async {
             await _loginViewModel.signOut();
             if (mounted) {
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (_) => const LoginPage()),
-                (route) => false, // Remove all routes behind the login page
+                (route) => false,
               );
             }
           },
-          child: const Text('Sign Out'),
         ),
       ),
     ];
+  }
+
+  void _openTripActions() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const TripAction(),
+    );
   }
 
   @override
@@ -58,20 +69,43 @@ class _HomeViewState extends State<HomeView> {
         automaticallyImplyLeading: false,
         centerTitle: true,
       ),
+
       body: _tabs[_currentIndex],
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.black,
-        child: const Icon(Icons.add),
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            builder: (_) => TripAction(),
-          );
-        },
+
+      /// 🔥 Custom Gradient FAB
+      floatingActionButton: GestureDetector(
+        onTap: _openTripActions,
+        child: Container(
+          width: 70,
+          height: 70,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: const LinearGradient(
+              colors: [
+                Color(0xFF7C3AED), // purple
+                Color(0xFF3B82F6), // blue
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: const Icon(
+            Icons.add,
+            color: Colors.white,
+            size: 32,
+          ),
+        ),
       ),
+
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+
       bottomNavigationBar: MainBottomNavBar(
         currentIndex: _currentIndex,
         onTap: (index) {

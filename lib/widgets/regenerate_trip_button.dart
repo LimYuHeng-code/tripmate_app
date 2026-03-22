@@ -1,36 +1,36 @@
 import 'package:flutter/material.dart';
 
-class ShareTripButton extends StatelessWidget {
+class RegenerateTripButton extends StatelessWidget {
   final VoidCallback onPressed;
+  final bool isLoading;
   final bool compact;
-  final bool isSharing; // new property to handle loading
 
-  const ShareTripButton({
+  const RegenerateTripButton({
     super.key,
     required this.onPressed,
+    this.isLoading = false,
     this.compact = false,
-    this.isSharing = false, // default false
   });
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
-      onPressed: isSharing ? null : onPressed, // disable button when sharing
-      icon: isSharing
+      onPressed: isLoading ? null : onPressed,
+      icon: isLoading
           ? SizedBox(
-              height: compact ? 16 : 20,
               width: compact ? 16 : 20,
+              height: compact ? 16 : 20,
               child: const CircularProgressIndicator(
                 strokeWidth: 2,
                 color: Colors.white,
               ),
             )
           : Icon(
-              Icons.share,
+              Icons.refresh,
               size: compact ? 16 : 20,
             ),
       label: Text(
-        compact ? 'Share' : 'Share Trip',
+        compact ? 'Regen' : 'Regenerate',
         style: TextStyle(fontSize: compact ? 13 : 14),
       ),
       style: ElevatedButton.styleFrom(
