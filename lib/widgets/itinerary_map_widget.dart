@@ -88,8 +88,8 @@ class _ItineraryMapWidgetState extends State<ItineraryMapWidget> {
           _updateMarkers();
         },
         zoomControlsEnabled: true,
-        myLocationEnabled: true,
-        myLocationButtonEnabled: true,
+        myLocationEnabled: false,
+        myLocationButtonEnabled: false,
       ),
     );
   }

@@ -109,23 +109,11 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // -------- Map Widget at the top --------
+                      // -------- Map --------
                       ItineraryMapWidget(viewModel: viewModel),
                       const SizedBox(height: 16),
 
-                      // -------- Regenerate Button above day title --------
-                      if (viewModel.canRegenerate)
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: RegenerateTripButton(
-                            compact: false, // full text
-                            isLoading: viewModel.isLoading,
-                            onPressed: viewModel.regenerateItinerary,
-                          ),
-                        ),
-                      const SizedBox(height: 8),
-
-                      // -------- Day header + Edit button --------
+                      // -------- Day title + Regenerate --------
                       Row(
                         children: [
                           Expanded(
@@ -137,19 +125,21 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
                               ),
                             ),
                           ),
-                          if (viewModel.canEdit)
-                            EditTripButton(
+                          if (viewModel.canRegenerate)
+                            RegenerateTripButton(
                               compact: true,
-                              isEditing: viewModel.isEditing,
-                              onPressed: viewModel.toggleEditing,
+                              isLoading: viewModel.isLoading,
+                              onPressed: viewModel.regenerateItinerary,
                             ),
                         ],
                       ),
+
                       const SizedBox(height: 8),
                       const Divider(),
                       const SizedBox(height: 8),
 
-                      _buildSection(day, 'Morning'),
+                      // ✅ Only Morning has Edit button
+                      _buildSection(day, 'Morning', showEdit: true),
                       _buildSection(day, 'Afternoon'),
                       _buildSection(day, 'Evening'),
                     ],
@@ -163,7 +153,7 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
     );
   }
 
-  Widget _buildSection(String day, String period) {
+  Widget _buildSection(String day, String period, {bool showEdit = false}) {
     final controllers = viewModel.controllers[day]![period]!;
 
     return Card(
@@ -172,10 +162,11 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16), // ✅ content padding
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // -------- Section header --------
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -183,15 +174,30 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
                   period,
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                if (viewModel.isEditing)
-                  IconButton(
-                    icon: const Icon(Icons.add, size: 20),
-                    onPressed: () => viewModel.addActivity(day, period),
-                  ),
+                Row(
+                  children: [
+                    // ✅ Edit button only in first card
+                    if (showEdit && viewModel.canEdit)
+                      EditTripButton(
+                        compact: true,
+                        isEditing: viewModel.isEditing,
+                        onPressed: viewModel.toggleEditing,
+                      ),
+
+                    if (viewModel.isEditing)
+                      IconButton(
+                        icon: const Icon(Icons.add, size: 20),
+                        onPressed: () =>
+                            viewModel.addActivity(day, period),
+                      ),
+                  ],
+                ),
               ],
             ),
+
             const SizedBox(height: 8),
 
+            // -------- Activities --------
             Column(
               children: List.generate(controllers.length, (index) {
                 return Padding(
@@ -207,7 +213,8 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
                           minLines: 1,
                           keyboardType: TextInputType.multiline,
                           textAlignVertical: TextAlignVertical.top,
-                          scrollPadding: const EdgeInsets.only(bottom: 120),
+                          scrollPadding:
+                              const EdgeInsets.only(bottom: 120),
                           decoration: const InputDecoration(
                             border: InputBorder.none,
                             contentPadding:
@@ -226,7 +233,8 @@ class _ItineraryPageViewState extends State<ItineraryPageView> {
                           icon: const Icon(Icons.delete, size: 18),
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
-                          onPressed: () => viewModel.removeActivity(
+                          onPressed: () =>
+                              viewModel.removeActivity(
                             day,
                             period,
                             index,

@@ -14,36 +14,21 @@ class RegenerateTripButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton.icon(
+    return IconButton(
       onPressed: isLoading ? null : onPressed,
       icon: isLoading
-          ? SizedBox(
-              width: compact ? 16 : 20,
-              height: compact ? 16 : 20,
-              child: const CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Colors.white,
+            ? SizedBox(
+                width: 24,
+                height: 24,
+                child: const CircularProgressIndicator(
+                  strokeWidth: 2,
+                ),
+              )
+            : Icon(
+                Icons.refresh,
+                size: 24,
               ),
-            )
-          : Icon(
-              Icons.refresh,
-              size: compact ? 16 : 20,
-            ),
-      label: Text(
-        compact ? 'Regen' : 'Regenerate',
-        style: TextStyle(fontSize: compact ? 13 : 14),
-      ),
-      style: ElevatedButton.styleFrom(
-        padding: compact
-            ? const EdgeInsets.symmetric(horizontal: 12, vertical: 6)
-            : const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        minimumSize: compact ? Size.zero : null,
-        tapTargetSize:
-            compact ? MaterialTapTargetSize.shrinkWrap : null,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-      ),
+      tooltip: "Refresh itinerary", // optional but good UX
     );
   }
 }
